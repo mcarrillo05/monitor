@@ -1,0 +1,2 @@
+Mario Ubuntu||10.0.0.8||SNMPcom
+Mario Ubuntu||192.168.100.20||SNMPcom
