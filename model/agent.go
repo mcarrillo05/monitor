@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -16,6 +15,9 @@ type Agent struct {
 	IP        string `json:"ip" binding:"required"`
 	Hostname  string `json:"hostname" binding:"required"`
 	Community string `json:"community" binding:"required"`
+	Name      string `json:"name"`
+	SO        string `json:"so"`
+	Uptime    string `json:"uptime"`
 }
 
 //GetAllAgents returns all agents registered in hosts file.
@@ -34,10 +36,10 @@ func GetAllAgents() ([]Agent, error) {
 				Hostname:  data[0],
 				Community: data[2],
 			}
+			a.getBasic()
 			agents = append(agents, a)
 		}
 	}
-
 	return agents, nil
 }
 
@@ -71,10 +73,32 @@ func (a *Agent) Get() error {
 			data := strings.Split(line, separator)
 			a.Hostname = data[0]
 			a.Community = data[2]
+			a.getBasic()
 			return nil
 		}
 	}
 	return ErrNotFound
+}
+
+func (a *Agent) getBasic() {
+	o, err := a.GetOID("SO")
+	if err != nil {
+		a.SO = unknown
+	} else {
+		a.SO = o.Value
+	}
+	o, err = a.GetOID("NAME")
+	if err != nil {
+		a.Name = unknown
+	} else {
+		a.Name = o.Value
+	}
+	o, err = a.GetOID("UPTIME")
+	if err != nil {
+		a.Uptime = unknown
+	} else {
+		a.Uptime = o.Value
+	}
 }
 
 //Delete removes an specific agent using its IP.
@@ -122,7 +146,6 @@ func (a *Agent) GetOID(resource string) (SNMPObject, error) {
 	}
 	object.Value = string(out)
 	if !object.Walk {
-		fmt.Println(object.Value)
 		if strings.Contains(object.Value, "timeout") {
 			return object, ErrNotFound
 		}

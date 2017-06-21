@@ -10,7 +10,7 @@ oID=sys.argv[3]
 errorIndication, errorStatus, errorIndex, varBinds = next(
     getCmd(SnmpEngine(),
            CommunityData(community),
-           UdpTransportTarget((ip, 161)),
+           UdpTransportTarget((ip, 161),timeout=0.5,retries=0),
            ContextData(),
            ObjectType(ObjectIdentity(oID)))
 )

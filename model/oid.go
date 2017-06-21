@@ -8,6 +8,8 @@ type SNMPObject struct {
 	Walk     bool   `json:"-"`
 }
 
+const unknown = "Unknown"
+
 //NewSNMPObject creates a new object using resource and search OID.
 func NewSNMPObject(resource string) (SNMPObject, error) {
 	object := SNMPObject{
